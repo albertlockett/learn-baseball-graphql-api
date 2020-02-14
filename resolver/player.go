@@ -13,7 +13,7 @@ var players = []*PlayerResolver{
 	&PlayerResolver{name: "Gerrit Cole", team: "Yankees", position: "P"},
 	&PlayerResolver{name: "Yasmani Grandal", team: "White Sox", position: "C"},
 	&PlayerResolver{name: "Madison Bumgarner", team: "Diamondbacks", position: "P"},
-	&PlayerResolver{name: "Stephen Strasburg", team: "Washington", position: "P"},
+	&PlayerResolver{name: "Stephen Strasburg", team: "Nationals", position: "P"},
 	&PlayerResolver{name: "Zack Wheeler", team: "Phillies", position: "P"},
 	&PlayerResolver{name: "Hyn-Jin Ryu", team: "Blue Jays", position: "P"},
 }

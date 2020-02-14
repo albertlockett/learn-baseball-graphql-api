@@ -8,6 +8,7 @@ import (
 	"github.com/friendsofgo/graphiql"
 	graphql "github.com/graph-gophers/graphql-go"
 	"github.com/graph-gophers/graphql-go/relay"
+	"github.com/rs/cors"
 )
 
 const s = `
@@ -39,13 +40,15 @@ func main() {
 	}
 
 	schema := graphql.MustParseSchema(s, root)
-	http.Handle("/graphql", &relay.Handler{Schema: schema})
+	mux := http.NewServeMux()
+	mux.Handle("/graphql", &relay.Handler{Schema: schema})
 	graphiqlHandler, err := graphiql.NewGraphiqlHandler("/graphql")
 	if err != nil {
 		panic(nil)
 	}
-	http.Handle("/", graphiqlHandler)
+	mux.Handle("/", graphiqlHandler)
+	handler := cors.Default().Handler(mux)
 
-	log.Println("Server ready at 8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Println("Server ready at 80")
+	log.Fatal(http.ListenAndServe(":80", handler))
 }
