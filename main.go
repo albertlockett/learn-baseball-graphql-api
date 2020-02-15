@@ -23,6 +23,7 @@ type Team {
 	division: String
 	league: String
 	name: String
+	code: String
 }
 
 type Query {

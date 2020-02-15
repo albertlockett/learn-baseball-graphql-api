@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -14,7 +15,11 @@ var instance *elastic.Client
 var ctx = context.Background()
 
 func init() {
-	host := "http://localhost:9200"
+	host := os.Getenv("ES_HOST")
+	fmt.Println(host)
+	if host == "" {
+		host = "http://localhost:9200"
+	}
 
 	client, err := elastic.NewClient(
 		elastic.SetURL(host),
