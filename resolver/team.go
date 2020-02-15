@@ -1,79 +1,75 @@
 package resolver
 
-import "context"
+import (
+	"context"
+	"encoding/json"
+	"log"
+
+	"github.com/albertlockett/learn-baseball-graphql-api/dao"
+)
 
 // TeamResolver resolver for a baseball team
 type TeamResolver struct {
-	city     string
-	division string
-	league   string
-	name     string
+	TeamCity     string `json:"city"`
+	TeamDivision string `json:"division"`
+	TeamLeague   string `json:"league"`
+	TeamName     string `json:"name"`
+	TeamCode     string `json:"code"`
 }
 
 // AllTeams return list of all teamss
 func AllTeams(ctx context.Context) *[]*TeamResolver {
-	var teams = []*TeamResolver{
-		// AL East
-		&TeamResolver{league: "AL", division: "east", city: "Baltimore", name: "Orioles"},
-		&TeamResolver{league: "AL", division: "east", city: "Boston", name: "Red Sox"},
-		&TeamResolver{league: "AL", division: "east", city: "New York", name: "Yankees"},
-		&TeamResolver{league: "AL", division: "east", city: "Tampa Bay", name: "Rays"},
-		&TeamResolver{league: "AL", division: "east", city: "Toronto", name: "Blue Jays"},
+	ctx = context.Background()
+	client := dao.GetESClient()
 
-		// AL Central
-		&TeamResolver{league: "AL", division: "central", city: "Chicago", name: "White Sox"},
-		&TeamResolver{league: "AL", division: "central", city: "Cleveland", name: "Indians"},
-		&TeamResolver{league: "AL", division: "central", city: "Detroit", name: "Tigers"},
-		&TeamResolver{league: "AL", division: "central", city: "Kansas City", name: "Royals"},
-		&TeamResolver{league: "AL", division: "central", city: "Minnesota", name: "Twins"},
+	result, err := client.
+		Search().
+		Index("teams").
+		From(0).
+		Size(50). // TODO increase limit when the league has > 50 teams
+		Do(ctx)
+	if err != nil {
+		log.Println("an error happened fetching teams")
+		panic(err)
+	}
 
-		// AL West
-		&TeamResolver{league: "AL", division: "west", city: "Houston", name: "Astros"},
-		&TeamResolver{league: "AL", division: "west", city: "Los Angeles", name: "Angels"},
-		&TeamResolver{league: "AL", division: "west", city: "Oakland", name: "Athletics"},
-		&TeamResolver{league: "AL", division: "west", city: "Seattle", name: "Mariners"},
-		&TeamResolver{league: "AL", division: "west", city: "Texas", name: "Rangers"},
+	hits := result.Hits.Hits
+	numHits := len(hits)
+	var teams = make([]*TeamResolver, numHits)
 
-		// NL East
-		&TeamResolver{league: "NL", division: "east", city: "Atlanta", name: "Braves"},
-		&TeamResolver{league: "NL", division: "east", city: "Miami", name: "Marlins"},
-		&TeamResolver{league: "NL", division: "east", city: "New York", name: "Mets"},
-		&TeamResolver{league: "NL", division: "east", city: "Philadelphia", name: "Phillies"},
-		&TeamResolver{league: "NL", division: "east", city: "Washington", name: "Nationals"},
-
-		// NL Central
-		&TeamResolver{league: "NL", division: "central", city: "Chicago", name: "Cubs"},
-		&TeamResolver{league: "NL", division: "central", city: "Cincinati", name: "Reds"},
-		&TeamResolver{league: "NL", division: "central", city: "Milwaukee", name: "Brewers"},
-		&TeamResolver{league: "NL", division: "central", city: "Pittsburgh", name: "Pirates"},
-		&TeamResolver{league: "NL", division: "central", city: "St. Lous", name: "Cardinals"},
-
-		// NL West
-		&TeamResolver{league: "NL", division: "west", city: "Arizona", name: "Diamondbacks"},
-		&TeamResolver{league: "NL", division: "west", city: "Colorado", name: "Rockies"},
-		&TeamResolver{league: "NL", division: "west", city: "Los Angeles", name: "Dodgers"},
-		&TeamResolver{league: "NL", division: "west", city: "San Diego", name: "Padres"},
-		&TeamResolver{league: "NL", division: "west", city: "San Francisco", name: "Giants"},
+	for i := 0; i < len(hits); i++ {
+		var teamResolver TeamResolver
+		hit := hits[i]
+		err := json.Unmarshal(hit.Source, &teamResolver)
+		if err != nil {
+			panic(err)
+		}
+		teams[i] = &teamResolver
 	}
 	return &teams
 }
 
 // City return the city for a team
 func (r TeamResolver) City(ctx context.Context) *string {
-	return &r.city
+	return &r.TeamCity
 }
 
 // Division return the division for a team
 func (r TeamResolver) Division(ctx context.Context) *string {
-	return &r.division
+	return &r.TeamDivision
 }
 
 // League return the division for a team
 func (r TeamResolver) League(ctx context.Context) *string {
-	return &r.league
+	return &r.TeamLeague
 }
 
 // Name return the name of a team
 func (r TeamResolver) Name(ctx context.Context) *string {
-	return &r.name
+	return &r.TeamName
+}
+
+// Code return the name of a team
+func (r TeamResolver) Code(ctx context.Context) *string {
+	return &r.TeamCode
 }
