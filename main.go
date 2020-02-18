@@ -48,6 +48,7 @@ type Player {
 	name: String
 	team: String
 	position: String
+	fantasyRank: Int
 }
 
 type Team {
@@ -59,7 +60,10 @@ type Team {
 }
 
 type Query {
-	players(teams: [TeamCode]): [Player]
+	players(
+		teams: [TeamCode]
+		maxFantasyRank: Int
+	): [Player]
 	teams: [Team]
 }
 `

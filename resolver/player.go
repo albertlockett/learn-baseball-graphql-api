@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/albertlockett/learn-baseball-graphql-api/dao"
 	"github.com/olivere/elastic/v7"
@@ -12,14 +13,16 @@ import (
 
 // PlayerResolverArgs argumentfor players resolver
 type PlayerResolverArgs struct {
-	Teams *[]*string
+	MaxFantasyRank *int32
+	Teams          *[]*string
 }
 
 // PlayerResolver resolve fields on the player
 type PlayerResolver struct {
-	PlayerName     string `json:"name"`
-	PlayerTeam     string `json:"team"`
-	PlayerPosition string `json:"position"`
+	PlayerName        string `json:"name"`
+	PlayerTeam        string `json:"team"`
+	PlayerPosition    string `json:"position"`
+	PlayerFantasyRank string `json:"fantasyRank"`
 }
 
 // AllPlayers returns all the players in the league
@@ -27,14 +30,9 @@ func AllPlayers(ctx context.Context, args PlayerResolverArgs) *[]*PlayerResolver
 	ctx = context.Background()
 	client := dao.GetESClient()
 
-	for i := 0; i < len(*args.Teams); i++ {
-		team := *(*args.Teams)[i]
-		fmt.Println(team)
-	}
-
 	query := elastic.NewBoolQuery()
 
-	if *args.Teams != nil {
+	if args.Teams != nil {
 		teamNames := make([]interface{}, len(*args.Teams))
 		for i := 0; i < len(*args.Teams); i++ {
 			team := *(*args.Teams)[i]
@@ -43,6 +41,11 @@ func AllPlayers(ctx context.Context, args PlayerResolverArgs) *[]*PlayerResolver
 
 		teamTerms := elastic.NewTermsQuery("team", teamNames[:]...)
 		query.Filter(teamTerms)
+	}
+
+	if args.MaxFantasyRank != nil {
+		fantasyRankRangeQuery := elastic.NewRangeQuery("fantasyRank").Lte(*args.MaxFantasyRank)
+		query.Filter(fantasyRankRangeQuery)
 	}
 
 	fmt.Println(query)
@@ -89,4 +92,19 @@ func (r PlayerResolver) Team(ctx context.Context) *string {
 // Position returns the position of the player
 func (r PlayerResolver) Position(ctx context.Context) *string {
 	return &r.PlayerPosition
+}
+
+// FantasyRank returns the fantasyRank of the player
+func (r PlayerResolver) FantasyRank(ctx context.Context) *int32 {
+	if r.PlayerFantasyRank != "" {
+		i64, err := strconv.ParseInt(r.PlayerFantasyRank, 10, 32)
+		if err != nil {
+			panic(err)
+		}
+		i := int32(i64)
+		return &i
+	}
+
+	i := int32(-1)
+	return &i
 }
