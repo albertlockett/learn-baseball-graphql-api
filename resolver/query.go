@@ -16,6 +16,6 @@ func (r QueryResolver) Teams(ctx context.Context) *[]*TeamResolver {
 }
 
 // Players returns all the players
-func (r QueryResolver) Players(ctx context.Context) *[]*PlayerResolver {
-	return AllPlayers(ctx)
+func (r QueryResolver) Players(ctx context.Context, args PlayerResolverArgs) *[]*PlayerResolver {
+	return AllPlayers(ctx, args)
 }

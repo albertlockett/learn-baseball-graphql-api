@@ -3,10 +3,17 @@ package resolver
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"github.com/albertlockett/learn-baseball-graphql-api/dao"
+	"github.com/olivere/elastic/v7"
 )
+
+// PlayerResolverArgs argumentfor players resolver
+type PlayerResolverArgs struct {
+	Teams *[]*string
+}
 
 // PlayerResolver resolve fields on the player
 type PlayerResolver struct {
@@ -15,25 +22,37 @@ type PlayerResolver struct {
 	PlayerPosition string `json:"position"`
 }
 
-// var players = []*PlayerResolver{
-// 	&PlayerResolver{name: "Gerrit Cole", team: "Yankees", position: "P"},
-// 	&PlayerResolver{name: "Yasmani Grandal", team: "White Sox", position: "C"},
-// 	&PlayerResolver{name: "Madison Bumgarner", team: "Diamondbacks", position: "P"},
-// 	&PlayerResolver{name: "Stephen Strasburg", team: "Nationals", position: "P"},
-// 	&PlayerResolver{name: "Zack Wheeler", team: "Phillies", position: "P"},
-// 	&PlayerResolver{name: "Hyn-Jin Ryu", team: "Blue Jays", position: "P"},
-// }
-
 // AllPlayers returns all the players in the league
-func AllPlayers(ctx context.Context) *[]*PlayerResolver {
+func AllPlayers(ctx context.Context, args PlayerResolverArgs) *[]*PlayerResolver {
 	ctx = context.Background()
 	client := dao.GetESClient()
+
+	for i := 0; i < len(*args.Teams); i++ {
+		team := *(*args.Teams)[i]
+		fmt.Println(team)
+	}
+
+	query := elastic.NewBoolQuery()
+
+	if *args.Teams != nil {
+		teamNames := make([]interface{}, len(*args.Teams))
+		for i := 0; i < len(*args.Teams); i++ {
+			team := *(*args.Teams)[i]
+			teamNames[i] = team
+		}
+
+		teamTerms := elastic.NewTermsQuery("team", teamNames[:]...)
+		query.Filter(teamTerms)
+	}
+
+	fmt.Println(query)
 
 	result, err := client.
 		Search().
 		Index("players").
 		From(0).
 		Size(20).
+		Query(query).
 		Do(ctx)
 	if err != nil {
 		log.Println("an error happened fetching teams")

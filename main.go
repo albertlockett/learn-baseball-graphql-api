@@ -12,6 +12,38 @@ import (
 )
 
 const s = `
+enum TeamCode {
+	ARI
+	ATL
+	BAL
+	BOS
+	CHC
+	CIN
+	CLE
+	COL
+	CWS
+	DET
+	HOU
+	KC
+	LAA
+	LAD
+	MIA
+	MIL
+	MIN
+	NYM
+	NYY
+	OAK
+	PHI
+	PIT
+	SD
+	SEA
+	SF
+	STL
+	TB
+	TEX
+	TOR
+	WSH
+}
 type Player {
 	name: String
 	team: String
@@ -27,7 +59,7 @@ type Team {
 }
 
 type Query {
-	players: [Player]
+	players(teams: [TeamCode]): [Player]
 	teams: [Team]
 }
 `
