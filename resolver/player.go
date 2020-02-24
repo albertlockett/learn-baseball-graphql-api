@@ -54,7 +54,7 @@ func AllPlayers(ctx context.Context, args PlayerResolverArgs) *[]*PlayerResolver
 		Search().
 		Index("players").
 		From(0).
-		Size(20).
+		Size(26 * 30).
 		Query(query).
 		Do(ctx)
 	if err != nil {
