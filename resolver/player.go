@@ -19,10 +19,18 @@ type PlayerResolverArgs struct {
 
 // PlayerResolver resolve fields on the player
 type PlayerResolver struct {
-	PlayerName        string `json:"name"`
-	PlayerTeam        string `json:"team"`
-	PlayerPosition    string `json:"position"`
-	PlayerFantasyRank string `json:"fantasyRank"`
+	PlayerName         string `json:"name"`
+	PlayerTeam         string `json:"team"`
+	PlayerPosition     string `json:"position"`
+	PlayerFantasyRank  string `json:"fantasyRank"`
+	PlayerBats         string `json:"bats"`
+	PlayerThrows       string `json:"throws"`
+	PlayerDebut        string `json:"debut"`
+	PlayerBorn         string `json:"born"`
+	PlayerBirthCity    string `json:"birthCity"`
+	PlayerBirthState   string `json:"birthState"`
+	PlayerBirthCountry string `json:"birthCountry"`
+	PlayerPlayerID     string `json:"playerId"`
 }
 
 // AllPlayers returns all the players in the league
@@ -107,4 +115,44 @@ func (r PlayerResolver) FantasyRank(ctx context.Context) *int32 {
 
 	i := int32(-1)
 	return &i
+}
+
+// Bats returns the bats of the player
+func (r PlayerResolver) Bats(ctx context.Context) *string {
+	return &r.PlayerBats
+}
+
+// Throws returns the throws of the player
+func (r PlayerResolver) Throws(ctx context.Context) *string {
+	return &r.PlayerThrows
+}
+
+// Debut returns the debut of the player
+func (r PlayerResolver) Debut(ctx context.Context) *string {
+	return &r.PlayerDebut
+}
+
+// Born returns the born of the player
+func (r PlayerResolver) Born(ctx context.Context) *string {
+	return &r.PlayerBorn
+}
+
+// BirthCity returns the birthCity of the player
+func (r PlayerResolver) BirthCity(ctx context.Context) *string {
+	return &r.PlayerBirthCity
+}
+
+// BirthState returns the birthState of the player
+func (r PlayerResolver) BirthState(ctx context.Context) *string {
+	return &r.PlayerBirthState
+}
+
+// BirthCountry returns the birthCountry of the player
+func (r PlayerResolver) BirthCountry(ctx context.Context) *string {
+	return &r.PlayerBirthCountry
+}
+
+// PlayerID returns the playerID of the player
+func (r PlayerResolver) PlayerID(ctx context.Context) *string {
+	return &r.PlayerPlayerID
 }

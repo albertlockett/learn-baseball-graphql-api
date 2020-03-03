@@ -44,11 +44,21 @@ enum TeamCode {
 	TOR
 	WSH
 }
+
+
 type Player {
 	name: String
 	team: String
 	position: String
 	fantasyRank: Int
+	bats: String
+	throws: String
+	debut: String
+	born: String
+	birthCity: String
+	birthState: String
+	birthCountry: String
+	playerID: String
 }
 
 type Team {
